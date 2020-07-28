@@ -138,10 +138,24 @@ function love.update(dt)
     end
 
     --player 1 movement
-    if love.keyboard.isDown('w') then
-        player1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
+    --if love.keyboard.isDown('w') then
+      --player1.dy = -PADDLE_SPEED
+    --elseif love.keyboard.isDown('s') then
+        --player1.dy = PADDLE_SPEED
+    --else
+        --player1.dy = 0
+    --end
+    -- move paddle simple AI
+    if gameState == 'play' and ball.dx < 0 and ball.dy > 0 then
         player1.dy = PADDLE_SPEED
+        if player1.y > ball.y then
+            player1.dy = 0
+        end
+    elseif gameState == 'play' and ball.dx < 0 and ball.dy < 0 then
+        player1.dy = -PADDLE_SPEED
+        if player1.y < ball.y then
+            player1.dy = 0
+        end
     else
         player1.dy = 0
     end
