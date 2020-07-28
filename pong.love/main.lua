@@ -21,10 +21,18 @@ function love.load()
     -- seed the randome number generator
     math.randomseed(os.time())
 
+    sounds = {
+        ['hit1'] = love.audio.newSource('sounds/Paddle_1.wav', 'static'),
+        ['hit2'] = love.audio.newSource('sounds/Paddle_2.wav', 'static'),
+        ['score'] = love.audio.newSource('sounds/Score.wav', 'static'),
+        ['wall'] = love.audio.newSource('sounds/wall.wav', 'static'),
+        ['win'] = love.audio.newSource('sounds/WIN.wav', 'static')
+    }
+
     smallFont = love.graphics.newFont('font.ttf', 8, 'mono')
     largeFont = love.graphics.newFont('font.ttf', 12, 'mono')
     scoreFont = love.graphics.newFont('font.ttf', 16, 'mono')
-    love.graphics.setFont(smallFont)    
+    love.graphics.setFont(smallFont)
     -- given to us by love 2d. We override it and give it behaviour.
     -- use Push function here to take virtual w and h into account
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WIN_WIDTH, WIN_HEIGHT, {
@@ -48,7 +56,7 @@ function love.load()
 end
 
 function love.update(dt)
-    
+
     --ball initiation in play state
     if gameState == 'serve' then
         ball.dy = math.random(-50,50)
@@ -62,12 +70,13 @@ function love.update(dt)
     if gameState == 'play' then
         ball:update(dt)
         if ball:collides(player1) then
+            sounds['hit1']:play()
             -- speed up the game at every collision for excitement
             ball.dx = -ball.dx * 1.03
-            
+
             -- avoid infinite collision. Shift ball entirely as reset
             ball.x = player1.x + 5
-            
+
             -- add variability in angle but maintain direction
             if ball.dy < 0 then
                 ball.dy = -math.random(10,150)
@@ -77,6 +86,7 @@ function love.update(dt)
         end
 
         if ball:collides(player2) then
+            sounds['hit2']:play()
             ball.dx = -ball.dx * 1.03
             ball.x = player2.x - 4
             if ball.dy < 0 then
@@ -87,11 +97,13 @@ function love.update(dt)
         end
 
         if ball.y <= 0 then
+            sounds['wall']:play()
             ball.y = 0
             ball.dy = -ball.dy
         end
 
         if ball.y >= VIRTUAL_HEIGHT - 4 then
+            sounds['wall']:play()
             ball.y = VIRTUAL_HEIGHT - 4
             ball.dy = -ball.dy
         end
@@ -101,6 +113,8 @@ function love.update(dt)
             servingPlayer = 1
             player2score = player2score + 1
             if player2score == 3 then
+                sounds['win']:play()
+
                 winningPlayer = 2
                 gameState = 'done'
             else
@@ -112,6 +126,8 @@ function love.update(dt)
             servingPlayer = 2
             player1score = player1score + 1
             if player1score == 3 then
+                sounds['win']:play()
+
                 winningPlayer = 1
                 gameState = 'done'
             else
@@ -120,7 +136,7 @@ function love.update(dt)
             end
         end
     end
-    
+
     --player 1 movement
     if love.keyboard.isDown('w') then
         player1.dy = -PADDLE_SPEED
@@ -155,7 +171,7 @@ function love.keypressed(key)
             gameState = 'play'
         elseif gameState == 'done' then
             gameState = 'serve'
-            -- reinitialise 
+            -- reinitialise
             ball:reset()
             player1score = 0
             player2score = 0
@@ -171,7 +187,7 @@ function love.keypressed(key)
 end
 
 function love.draw()
-    
+
     push:apply('start')
 
     love.graphics.clear(139/255, 34/255, 82/255, 255/255)
@@ -198,7 +214,7 @@ function love.draw()
 
         love.graphics.printf('Game Over\nPress ENTER to play again',0,30,VIRTUAL_WIDTH,'center')
     end
-    
+
     -- first paddle left
     player1:render()
 
