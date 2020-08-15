@@ -1,0 +1,7 @@
+TitleScreenState = Class{__includes = BaseState}
+
+function TitleScreenState:update(dt)
+end
+
+function TitleScreenState:render()
+end
